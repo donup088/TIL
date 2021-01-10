@@ -18,6 +18,10 @@
     ```
     git log --oneline --graph --all --decorate
     ```
+
+    ```
+    git log --oneline --all
+    ```
  ### 변경사항 적용하기
  - 원격저장소의 변경사항을 워킹트리에 반영(git fetch + git merge)
     ```
@@ -72,12 +76,21 @@
     git checkout master
     ```
 - git rebase 사용
-    ```
-    git rebase <대상 브랜치>
-    ```
     - 현재 브랜치에만 있는 새로운 커밋을 대상 브랜치 위로 재배치 시킨다.
     - 재배치할 커밋이 없는 경우 아무런 동작을 하지 않는다.
     - 빨리 감기 병합이 가능한 경우 rebase 명령은 빨리 감기 병합을 한다.
+    ```
+    git rebase <대상 브랜치>
+    ```
+    - rebase로 가지 없애기
+    ```
+    git reset --hard HEAD~
+    git rebase origin/master
+    ```
+    - 주의할점
+        - 원격 저장소에 push한 브랜치는 rebase 하지 않는다. (로컬 브랜치에서만 사용한다.)
+    
+    
 
 
 
