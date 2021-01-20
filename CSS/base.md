@@ -23,3 +23,10 @@
 
  ### text-align
 - text-align: justify 를 사용하면 양쪽이 균등하게 분배된다. 
+
+### backgroud
+- background-image: url()
+- background-repeat: no-repeat (반복 여부 결정 x축 y축에 따라서도 결정 가능)
+- background-size (px로 정할 수 있고 cover와 contain 속성 사용가능)
+- background-position
+- background-color: azure
