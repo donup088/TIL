@@ -143,9 +143,15 @@ print(data)
     h, m, s = map(int, input().split(':'))
     print(m)
     ```
-- N진수 입력받기(8진수)
+- N진수 입력받기(8진수), 출력하기
     ```
     num = int(input(), 8)
+    ```
+    - %를 사용하여 묶어서 표현한다.
+    ```
+    a=int(input(),16)
+    for i in range(1,16):
+        print('%X*%X=%X' % (a,i,a*i))
     ```
 - 아스키코드와 숫자 변환
     - 아스키 -> 숫자
@@ -156,6 +162,16 @@ print(data)
     ```
     num = int(input())
     print(chr(num))
+    ```
+
+- 엔터 없이 출력하기
+    - print에 end를 지정해준다.
+    ```
+    a= int(input())
+    for i in range(1,a+1):
+    if(i%3==0):
+        continue
+    print(i, end=' ')
     ```
 
 
