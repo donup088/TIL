@@ -74,4 +74,8 @@ public @interface TestDescription {
         );
     }
 ```
-- 
+
+- 테스트용 properties 만들기
+    - test 폴더 밑에 resouces 폴더를 만들고 application-test.properties 를 만든다.
+    - 테스트에서 @ActiveProfiles("test") 사용하여 해당 properties를 사용한다.
+    - 기존 properties의 내용을 가져라면서 덮어 쓰게 되기 때문에 중복을 줄일 수 있다.

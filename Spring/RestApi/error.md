@@ -70,3 +70,31 @@
     }
     ```
 - 검증 클래스를 만들었다면 사용할 클래스에서 주입받아서 사용하면된다.
+
+### 인덱스 페이지 만들기
+- 에러가 났을 때 인덱스 api로 이동가능해야하기 때문에 링크를 만들어준다.
+```
+@GetMapping("/api")
+public RepresentationModel index(){
+    var index=new RepresentationModel<>();
+    index.add(linkTo(EventController.class).withRel("events"));
+    return index;
+}
+```
+    - {"_links":{"events":{"href":"http://localhost:8080/api/events"}}} 링크가 생긴다.
+- 에러 리소스 클래스 만들기 
+    ```
+    public class ErrorsResource extends RepresentationModel {
+        private Errors errors;
+
+        public ErrorsResource(Errors errors) {
+            this.errors = errors;
+            add(linkTo(methodOn(IndexController.class).index()).withRel("index"));
+        }
+
+        public Errors getErrors() {
+            return errors;
+        }
+    }
+    ```
+    - "_links":{"index":{"href":"http://localhost:8080/api" 링크가 생긴다.
