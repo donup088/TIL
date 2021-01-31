@@ -12,6 +12,7 @@
 
 
 ### 링크 만들기
+- self링크와 profile 링크는 항상 추가해준다.
 - Resource를 관리하는 클래스를 만들어준 뒤 RepresentationModel 상속 받고 생성자와 getter를 만들어준다.
 ```
 public class EventResource extends RepresentationModel {
@@ -28,6 +29,16 @@ public class EventResource extends RepresentationModel {
 }
 ```
 - 이렇게 코드를 작성하면 api가 event에 감싸지게 된다. 그렇지 않길 원하면 @JsonUnwrapped 을 사용한다.
+
+- 위와 같은 방법으로 EntityModel을 상속받아 클래스를 만들어 사용하는 방법이있다.
+    ```
+    public class EventResource extends EntityModel<Event> {
+        public EventResource(Event event, Link... links){
+            super(event,links);
+            add(linkTo(EventController.class).slash(event.getId()).withSelfRel());
+        }
+    }
+    ```
 - EventResource를 사용하는 곳에서 add를 사용하여 링크를 만든다.
     ```
     EventResource eventResource = new EventResource(event);
@@ -40,3 +51,18 @@ public class EventResource extends RepresentationModel {
     EntityModel eventResource = EntityModel.of(newEvent);
     eventResource.add(linkTo(EventController.class).withRel("query-events"));
     ```
+- 페이징 링크 만들기
+    - PagedResourcesAssembler를 받아서 사용한다.
+    - toModel 매소드를 사용하여 페이징 링크를 만들게 된다.
+    - 하나의 아이템마다 링크를 주기 위해서 toModel에  e -> new EventResource(e)를 추가한다.
+    ```
+    @GetMapping
+    public ResponseEntity queryEvents(Pageable pageable, PagedResourcesAssembler<Event> assembler) {
+        Page<Event> page = eventRepository.findAll(pageable);
+        var entityModels = assembler.toModel(page, e -> new EventResource(e));
+        entityModels.add(new Link("/docs/index.html#resources-events-list").withRel("profile"));
+        return ResponseEntity.ok(entityModels);
+    }
+    ```
+
+

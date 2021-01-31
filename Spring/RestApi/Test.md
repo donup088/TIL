@@ -79,3 +79,42 @@ public @interface TestDescription {
     - test 폴더 밑에 resouces 폴더를 만들고 application-test.properties 를 만든다.
     - 테스트에서 @ActiveProfiles("test") 사용하여 해당 properties를 사용한다.
     - 기존 properties의 내용을 가져라면서 덮어 쓰게 되기 때문에 중복을 줄일 수 있다.
+
+- 테스트 코드의 중복되는 애노테이션 줄이기
+    - 다음과 같이 코드를 작성하고 테스트코드에서 상속받아서 사용하면 된다.
+    - @Ignore 테스트 코드 대상에서 무시할 수 있다.
+    ```
+    @RunWith(SpringRunner.class)
+    @SpringBootTest
+    @AutoConfigureMockMvc
+    @AutoConfigureRestDocs
+    @Import(RestDocsConfiguration.class)
+    @ActiveProfiles("test")
+    @Ignore
+    public class BaseControllerTest {
+        @Autowired
+        protected MockMvc mvc;
+
+        @Autowired
+        protected ObjectMapper objectMapper;
+
+        @Autowired
+        protected ModelMapper modelMapper;
+    }
+    ```
+
+- 토큰을 받는 테스트 작성하기
+    - httpBasic을 사용해서 사용할 클라이언트 아이디와 클라리언트 시크릿을 전달한다. 이 때 시큐리티 테스트 의존성을 추가해줘야 한다.
+    ```
+        String clientId = "myApp";
+        String clientSecret = "pass";
+
+        mvc.perform(post("/oauth/token")
+                .with(httpBasic(clientId, clientSecret))
+                .param("username", username)
+                .param("password", password)
+                .param("grant_type", "password"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("access_token").exists());
+    ```
