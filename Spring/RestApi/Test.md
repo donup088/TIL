@@ -118,3 +118,36 @@ public @interface TestDescription {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("access_token").exists());
     ```
+
+- Post 방식의 테스트에서 토큰을 사용하도록 수정하기
+    - 시큐리티를 적용하면 토큰이 적용되지 않은 테스트들은 모두 깨지게 된다.
+    - mvc 테스트에 .header(HttpHeaders.AUTHORIZATION, getBearToken()) 부분을 추가해서 토큰이 사용되도록한다.
+        ```
+        private String getBearToken() throws Exception {
+            return "Bearer  " + getAccessToken();
+        }
+
+        private String getAccessToken() throws Exception {
+            String username = "test2@example.com";
+            String password = "pass2";
+            Account account = Account.builder()
+                    .email(username)
+                    .password(password)
+                    .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
+                    .build();
+            accountService.saveAccount(account);
+
+            String clientId = "myApp";
+            String clientSecret = "pass";
+
+            ResultActions perform = mvc.perform(post("/oauth/token")
+                    .with(httpBasic(clientId, clientSecret))
+                    .param("username", username)
+                    .param("password", password)
+                    .param("grant_type", "password"));
+
+            String responseBody = perform.andReturn().getResponse().getContentAsString();
+            Jackson2JsonParser parser = new Jackson2JsonParser();
+            return parser.parseMap(responseBody).get("access_token").toString();
+        }
+        ```

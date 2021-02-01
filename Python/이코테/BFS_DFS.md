@@ -66,3 +66,4 @@ def bfs(graph,start,visited):
         queue.append(i)
         visited[i]=True
 ```
+- 큐를 생성하고 queue.append((x,y)) 를 할 때 소괄호를 2개 사용해야한다.
