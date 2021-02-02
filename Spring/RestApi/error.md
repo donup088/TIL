@@ -52,6 +52,7 @@
 ### 애노테이션만으로 검증이 불가능 할 때
 - 검증클래스를 만들어서 검증을 거친다.
 - EventValidator 클래스 생성
+- rejectValue()를 사용하면 필드에러에 들어가고 reject()을 사용하면 글로벌에러에 들어간다.
     ```
     @Component
     public class EventValidator {

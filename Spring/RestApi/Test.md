@@ -35,6 +35,7 @@ public @interface TestDescription {
 
 - json 값 테스트
     - jsonPath("id").value("1") 이렇게 확인할 수 있다.
+    - json 값에서 enum 타입을 테스트하려면 .name()을 붙여서 비교해야한다.
 
 
 ### 파라미터를 사용하여 테스트코드 만들기

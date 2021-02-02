@@ -14,6 +14,7 @@
 ### 링크 만들기
 - self링크와 profile 링크는 항상 추가해준다.
 - Resource를 관리하는 클래스를 만들어준 뒤 RepresentationModel 상속 받고 생성자와 getter를 만들어준다.
+- 객체를 리소스로 만들고 반환해야한다.
 ```
 public class EventResource extends RepresentationModel {
     //@JsonUnwrapped
@@ -46,11 +47,22 @@ public class EventResource extends RepresentationModel {
     eventResource.add(selfLinkBuilder.withSelfRel());
     eventResource.add(selfLinkBuilder.withRel("update-event"));
     ```
+
 - @JsonUnwrapped 대신 EntityModel 을 사용해도 api Event에 감싸여서 나오지 않는다.
     ```
     EntityModel eventResource = EntityModel.of(newEvent);
     eventResource.add(linkTo(EventController.class).withRel("query-events"));
     ```
+    - 링크를 배열로 만들어서 사용할 수도 있다.
+    ```
+     List<Link> links = Arrays.asList(
+                selfLinkBuilder.withSelfRel(),
+                selfLinkBuilder.withRel("query-events"),
+                selfLinkBuilder.withRel("update-event")
+        );
+    EntityModel<Event> eventResource = EntityModel.of(newEvent, links);
+    ```
+    
 - 페이징 링크 만들기
     - PagedResourcesAssembler를 받아서 사용한다.
     - toModel 매소드를 사용하여 페이징 링크를 만들게 된다.
