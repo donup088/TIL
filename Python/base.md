@@ -39,6 +39,10 @@
     result=[i for i in a if i not in remove_set]
     print(result)
     ```
+- 2차원 리스트 입력받기
+    ```
+    a=[list(map(int,input().split())) for _ in range(n)]
+    ```
 ### 튜플 자료형
 - 소괄호()를 이용한다.
 - 한번 선언된 값을 변경할 수 없다.
@@ -90,7 +94,8 @@ for i in range(2,10):
     print(i,"X",j,"=",i*j)
   print()
 ```
-
+- for ~else 사용 가능 else 문은 for문이 모두 성공적으로 돌았으면 실행된다.
+- for idx, x in enumerate(a): idx와 해당하는 idx의 리스트값을 사용할 수 있다.
 ### 함수
 ```
 def 함수명(매개변수):
@@ -183,4 +188,10 @@ printf("%d", a<<1); //10을 2배 한 값인 20 이 출력된다.
 printf("%d", a>>1); //10을 반으로 나눈 값인 5 가 출력된다.
 printf("%d", a<<2); //10을 4배 한 값인 40 이 출력된다.
 printf("%d", a>>2); //10을 반으로 나눈 후 다시 반으로 나눈 값인 2 가 출력된다.
+```
+
+### set 사용
+- 중복되는 원소를 없애준다.
+```
+a=set()
 ```
