@@ -195,3 +195,13 @@ printf("%d", a>>2); //10을 반으로 나눈 후 다시 반으로 나눈 값인 
 ```
 a=set()
 ```
+
+### stack 사용
+- 파이썬에서는 stack을 list의 pop(),append()를 사용하여 구현한다.
+
+### 숫자를 리스트화시키기
+- str을 사용해야한다.
+```
+n,m=map(int,input().split())
+n=list(map(int,str(n)))
+```
