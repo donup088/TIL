@@ -127,3 +127,44 @@
     ```
     eventResource.add(new Link("/docs/index.html#resources-events-create").withRel("profile"));
     ```
+
+
+
+### gradle설정으로 RestDocs 사용하기
+- 인텔리제이 asciidoc에 대한 plugin을 설치하면 preview를 볼 수 있다.
+```
+plugins {
+	id 'org.springframework.boot' version '2.4.2'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id "org.asciidoctor.convert" version "1.5.9.2"
+	id 'java'
+}
+ext {
+	set('snippetsDir', file("build/generated-snippets"))
+}
+
+asciidoctor {
+	inputs.dir snippetsDir
+	dependsOn test
+}
+
+task copyDocument(type: Copy) {
+	dependsOn asciidoctor
+	from file("build/asciidoc/html5/")
+	into file("src/main/resources/static/docs")
+}
+
+build {
+	dependsOn copyDocument
+}
+
+...
+asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor:2.0.4.RELEASE'
+...
+
+test {
+	outputs.dir snippetsDir
+	useJUnitPlatform()
+}
+```
+- index.adoc 의 위치는 /src/docs/asciidoc/index.adoc 에 위치해야한다.
