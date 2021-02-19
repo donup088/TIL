@@ -69,3 +69,23 @@
 - 수정 날짜, 생성 날짜와 같은 필드들에 사용.
 - 엔티티가 아니고 상속 받는 클래스에 매핑 정보만 제공한다.
 - 추상 클래스로 사용한다.
+
+### Arraylist 초기화시 주의점
+- Builder 패턴과 같이 사용할 때 아래 코드와 같이 사용하면 값이 null이다.
+```
+private List<MemberClub> memberClubs=new ArrayList<>();
+```
+- @Builder.Default를 사용하거나 생성자를 따로 만들어서 @Builder를 사용한다.
+```
+@Builder.Default
+private List<MemberClub> memberClubs=new ArrayList<>();
+```
+
+### Cascade 사용
+```
+@OneToMany(mappedBy = "club", cascade = CascadeType.ALL)
+@Builder.Default
+private List<MemberClub> memberClubs=new ArrayList<>();
+``` 
+- OneToMany에서 연관관계의 주인으로 설정한 club이 저장될 때 아래 있는 MemberClub를 add와 같은 메소드로 값을 추가하면 Club과 함께 모두 저장된다.
+- 다대다 관계를 일대다 2개로 풀어서 중간테이블이 나왔을 떄 중간테이블을 자동저장시키기 위해 사용하면 편리하다.
