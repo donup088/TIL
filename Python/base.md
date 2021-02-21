@@ -43,6 +43,11 @@
     ```
     a=[list(map(int,input().split())) for _ in range(n)]
     ```
+- 리스트를 입력받으며 인덱스와 함께 튜플 형태로 저장하기
+```
+dq=[(pos,val) for pos,val in enumerate(list(map(int,input().split())))]
+```
+    - (인덱스,값) 의 튜플형태를 갖는 리스트가 만들어진다.
 ### 튜플 자료형
 - 소괄호()를 이용한다.
 - 한번 선언된 값을 변경할 수 없다.
@@ -96,6 +101,15 @@ for i in range(2,10):
 ```
 - for ~else 사용 가능 else 문은 for문이 모두 성공적으로 돌았으면 실행된다.
 - for idx, x in enumerate(a): idx와 해당하는 idx의 리스트값을 사용할 수 있다.
+
+### 조건문
+- any 사용
+    - 튜플값을 가진 리스트에서 아래와 같은 코드를 작성하면 dq의 모든 원소를 탐색할 수 있다.
+    ```
+    if any(cur[1]<x[1] for x in dq):
+        dq.append(cur)
+    ```
+
 ### 함수
 ```
 def 함수명(매개변수):
@@ -205,3 +219,26 @@ a=set()
 n,m=map(int,input().split())
 n=list(map(int,str(n)))
 ```
+
+### dict 사용
+- p=dict() dict 생성
+- dict()은 문자열으 키값으로 사용할 수 있다.
+- 반복문에서 key,val을 따로 구해서 사용할 수 있다.
+```
+for key,val in p.items():
+  if val==1:
+    print(key)
+```
+- dict를 사용해서 값을 누적시키는 경우
+    - 값을 가져왔을 때 처음에는 None 값을 가져온다.
+    ```
+    if da.get(a[i])==None:
+        da[a[i]]=1
+    else:
+        da[a[i]]=int(da.get(a[i]))+1
+    ```
+    - 위 코드를 get(x,0)을 사용해서 줄일 수 있다.
+    - x값이 없다면 0 을 반환하여 1을 더한다.
+    ```
+      da[x]=da.get(x,0)+1
+    ```
