@@ -97,3 +97,11 @@
 - Content-Type
 
 
+### 쿠키를 위한 헤더 필드
+- Set-Cookie
+    - NAME : 쿠키에 부여된 이름
+    - Expires: 쿠키의 유효기간
+    - Path: 쿠키 적용 대상이 되는 서버상의 디렉토리
+    - Domain:쿠키 적용 대상이 되는 도메인 명
+    - Secure: HTTPS로 통신하고 있는 경우에만 쿠키를 송신
+    - HttpOnly: 쿠키를 javascript에서 접근하지 못하도록 제한
