@@ -76,3 +76,46 @@ if __name__=="__main__":
   cnt=0
   DFS(0)
 ```
+- 라이브러리 사용
+  - import itertools as it 
+  ```
+  a=list(range(1,n+1))
+  for tmp in it.permutations(a):
+    print(tmp)
+    cnt+=1
+  ```
+  - permutations을 사용하여 순열을 구할 수 있다.
+
+### 조합 만들기
+- 상태트리를 먼저 그려보자
+- DFS에 s라는 변수가 하나 더 필요하다.
+- 가지를 뻗을 때 s~n까지 가지를 뻗는다.
+```
+def DFS(L,s):
+  global cnt
+  if L==m:
+    for x in res:
+      print(x,end=' ')
+    print()
+    cnt+=1
+  else:
+    for i in range(s,n+1):
+      res[L]=i
+      DFS(L+1,i+1)
+
+
+if __name__=="__main__":
+  n,m=map(int,input().split())
+  res=[0]*m
+  cnt=0
+  DFS(0,1)
+  print(cnt)
+```
+- 라이브러리 사용
+  - import itertools as it 
+   ```
+  a=list(range(1,n+1))
+  for x in it.combinations(a,k):
+    if sum(x)%m==0:
+      cnt+=1
+  ```
