@@ -127,3 +127,21 @@ if __name__=="__main__":
 
 ### 리스트에 서로 다른 값이 들어갔는 지 구별
 - set을 사용하면 set에는 중복되는 원소가 들어가지 않기 때문에 set에 원소를 모두 넣고 예상하는 len이 나오는지 체크해보면된다.
+
+### 경로 수 구하기
+- 최단 경로를 구하는 것을 BFS로 하지만 경로 수 를 구하는 것은 DFS로 한다.
+- DFS(x,y)로 목표 지점 좌표를 x,y로 하여 사용한다.
+```
+def DFS(x,y):
+  global cnt
+  if x==6 and y==6:
+    cnt+=1
+  else:
+    for i in range(4):
+      xx=x+dx[i]
+      yy=y+dy[i]
+      if 0<=xx<=6 and 0<=yy<=6 and board[xx][yy]==0:
+        board[xx][yy]=1
+        DFS(xx,yy)
+        board[xx][yy]=0
+```
