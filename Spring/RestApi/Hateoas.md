@@ -77,4 +77,27 @@ public class EventResource extends RepresentationModel {
     }
     ```
 
+- CollectionModel 사용
+    - 리스트 조회를 할 때 사용한다.
+    - EntityModel을 리스트화해서 CollectionModel에 담아서 리턴하면 리스트의 원소마다 링크를 가지고 있도록 할 수 있다.
+    ```
+     List<EntityModel<ClubScheduleResponse>> entityModelList = responseList.stream()
+                .map(response -> {
+                    if (response.getMemberEmail().equals(email)) {
+                        return EntityModel.of(response,
+                                selfLinkBuilder.withRel("clubSchedule-create"),
+                                selfLinkBuilder.slash(response.getId()).withRel("clubSchedule-getOne"),
+                                selfLinkBuilder.slash(response.getId()).withRel("clubSchedule-update"),
+                                selfLinkBuilder.slash(response.getId()).withRel("clubSchedule-delete"));
+                    }
+                    return EntityModel.of(response,
+                            selfLinkBuilder.withRel("clubSchedule-create"),
+                            selfLinkBuilder.slash(response.getId()).withRel("clubSchedule-getOne"));
+                }).collect(Collectors.toList());
+    links.add(Link.of("/docs/index.html#resources-clubSchedule-list", "profile"));
+
+    return CollectionModel.of(entityModelList, links);
+    ```
+    - CollectionModel 사용하면 reponse가 embedded에 감싸여서 나온다. 그리고 배열에 한번더 포함되어있다. 이 때 포함되어 있느 배열 이름을 바꾸고 싶다면 dto클래스에서 @Relation(collectionRelation = "clubList") 애노테이션을 사용하면된다.
+
 
