@@ -25,6 +25,12 @@
   sudo yum remove java-1.7.0-openjdk //사용하지 않는 java버전 삭제
   java -version //현재 버전 확인
   ```
+  ```
+  sudo yum install java-11-amazon-corretto //java 11 설치
+  ```
+  ```
+  sudo alternatives --config java //java 버전 선택
+  ```
 - 타임존 변경
   ```
   sudo rm /etc/localtime
@@ -48,3 +54,12 @@
   curl 등록한 호스트 이름
   ```
   
+
+  ### 프리티어 사용시 메모리 부족으로 인해 빌드가 안될 때 가상메모리 사용
+  - 메모리를 돈을 내고 더 많이 사용할 수도 있지만 프리티어를 사용할 때 가상메모리를 만들어 사용하는 것도 좋다.
+  ```
+  sudo fallocate -l 1G /swapfile  -> 스왑 메모리할당
+  sudo chmod 600 /swapfile    -> 스왑 파일에 대한 읽기 및 쓰기 권한 업데이트
+  sudo mkswap /swapfile   -> 리눅스 스왑 영역 설정
+  sudo swapon /swapfile   -> 스왑 공간에 스왑 파일을 추가하여 스왑파일을 즉시 사용할 수 있도록 한다.
+  ```
