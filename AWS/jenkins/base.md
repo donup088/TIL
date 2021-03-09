@@ -35,3 +35,11 @@
     - username : ec2-user
 
 - jenkins github 플러그인 설치
+
+### jenkins github 연동
+
+- jenkins 에 아이템 설정에 들어가서 git 아이디와 비밀번호 추가
+- github에서 webhooks 추가
+    - http://jenkins주소/github-webwook/
+- git push를 하면 jenkins에서 빌드가 자동으로 된다.
+
