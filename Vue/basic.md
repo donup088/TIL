@@ -225,3 +225,14 @@ new Vue({
             }
         })
     ```
+- v-for 사용
+    - v-for을 사용하면 v-bind:key로 사용할 아이템을 설정해야한다.
+    ```
+    <li v-for="(todoItem,index) in todoItems" v-bind:key="todoItem.item" class="shadow">
+    ```
+- v-bind 사용
+    - todoItem.completed속성이 true이면 checkBtnCompleted 클래스로 설정된다.
+    ```
+    v-bind:class="{checkBtnCompleted:todoItem.completed}" 
+    ```
+
