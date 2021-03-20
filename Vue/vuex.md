@@ -29,3 +29,50 @@ npm install vuex --save
             state.todoItems.splice(payload.index, 1)
         },
         ```
+- actions 사용
+    - 비동기 처리 로직을 사용할 때 actions에 선언한다.
+    - actions에 있는 메서드를 사용하기 위해서는 사용하는 곳에서 dispatch를 사용한다.
+
+- 헬퍼 함수
+    - mapState
+    ```
+    import { mapState } from 'vuex'
+
+    computed() {
+        ...mapState(['num'])
+        //num(){return this.$strore.state.num;}
+    }
+    //store.js
+    state:{
+        num: 10
+    }
+    ```
+    - mapGetters
+    ```
+    import { mapGetters } from 'vuex'
+
+    //생략
+
+    computed: {
+        // todoItems(){
+        //     return this.$store.getters.storedTodoItems;
+        // }
+        ...mapGetters({
+            todoItems: 'storedTodoItems'
+        })
+    }
+    ```
+    ```
+    <li v-for="(todoItem,index) in this.todoItems" v-bind:key="todoItem.item" class="shadow">
+    ```
+    - mapMutations
+    ```
+    import { mapMutations } from 'vuex'
+    export default {
+        methods: {
+            ...mapMutations({
+                clearTodo:'clearAllItem'
+            })
+        }
+    }
+    ```
