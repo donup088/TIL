@@ -76,3 +76,32 @@ npm install vuex --save
         }
     }
     ```
+### Vuex를 사용할 때 api를 호출하여 데이터 적용하기
+1. api 호출하는 부분은 actions를 사용한다.
+2. actions에서 state를 바꿀 수 있는 방법은 mutations을 사용하는 것이다.
+3. mutations에 메서드를 추가하여 state를 바꿀 수 있도록 한다.
+```
+export const store = new Vuex.Store({
+    state: {
+        news: []
+    },
+    mutations: {
+        SET_NEWS(state, news) {
+            state.news = news;
+        }
+    },
+    actions: {
+        FETCH_NEWS(context) {
+            fethchNewsList()
+                .then(response => {
+                    console.log(response);
+                    context.commit('SET_NEWS', response.data);
+                })
+                .catch(error => {
+                    console.log(error);
+                })
+        }
+    }
+})
+```
+4. state 바뀐 부분을 화면에 적용시켜준다.
