@@ -59,3 +59,52 @@ new Vue({
   </div>
 </template>
 ```
+
+### 동적 route
+```
+routes: [
+        {
+            path: '/user/:id',
+            component: UserView,
+        }
+    ]
+
+// NewsView
+ <router-link v-bind:to="`/user/${item.user}`">{{ item.user }}</router-link>
+```
+- 동적 route의 데이터 사용
+    ```
+    //UserViews
+    created() {
+        const userName = this.$route.params.id;
+        this.$store.dispatch('FETCH_USER', userName);
+    }
+    ```
+
+### 공통 컴포넌트화 
+- route name을 사용하기 위해 route에서 name을 설정해주고 name을 분기점으로 데이터를 다르게 가져온다.
+- v-if 와 v-else를 사용해서 화면을 다르게 처리해준다.
+    ```
+    created() {
+        const name = this.$route.name;
+        if (name === 'news') {
+            this.$store.dispatch('FETCH_NEWS');
+        } else if (name === 'ask') {
+            this.$store.dispatch('FETCH_ASKS');
+        } else if (name === 'jobs') {
+            this.$store.dispatch('FETCH_JOBS');
+        }
+    },
+    computed: {
+        listItems() {
+            const name = this.$route.name;
+            if (name === 'news') {
+                return this.$store.state.news;
+            } else if (name === 'ask') {
+                return this.$store.state.asks;
+            } else if (name === 'jobs') {
+                return this.$store.state.jobs;
+            }
+        }
+    }
+    ```
