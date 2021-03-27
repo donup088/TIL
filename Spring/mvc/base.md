@@ -27,3 +27,28 @@
 6. viewResolver 호출
 7. View 반환
 8. 뷰 랜더링
+
+### MutiValueMap
+- 하나의 키에 여러 값을 받을 수 있다.
+- HTTP header, HTTP 쿼리 파라미터와 같이 하나의 키에 여러 값을 받을 때 사용
+
+### RequestParam
+- @RequestParam(required=false) 설정가능 
+- int age(required=false) 라고 하면 int에 null이 들어갈 수 없기 때문에 Integer로 바꿔줘야한다. int로 쓰기 위해서는 defaultValue 설정을 추가해준다.
+
+### ModelAttribute
+- @ModelAttribute
+- 해당 객체 생성
+- 해당 객체의 프로퍼티를 찾아 setter를 호출하여 파라미터값을 바인딩한다.
+
+### RequestBody
+- @RequestBody를 사용하면 HTTP 메시지 컨버터가 HTTP 메시지 바디의 내용을 우리가 원하는 문자나 객체 등으로 변환해준다.
+
+### HTTP 메시지 컨버터
+1. ByteArrayHttpMessageConverter
+    - byte[] 데이터 처리
+2. StringHttpMessageConverter
+    - String 문자로 데이터 처리
+3. MappingJackson2HttpMessageConverter
+    - application/json 데이터 처리
+    - ex) ObjectMapper
