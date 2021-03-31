@@ -43,3 +43,22 @@
     - http://jenkins주소/github-webwook/
 - git push를 하면 jenkins에서 빌드가 자동으로 된다.
 
+
+## jenkins
+
+### jenkins 설치,실행
+1. sudo wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins.io/redhat/jenkins.repo
+2. sudo rpm --import https://pkg.jenkins.io/redhat/jenkins.io.key
+3.sudo yum install -y java-1.8.0-openjdk jenkins git docker
+4. alternatives --config java 자바 버전 선택
+5. service jenkins start
+- sudo cat /var/lib/jenkins/secrets/initialAdminPassword 처음 어드민 비밀번호를 알 수 있다.
+
+### jenkins credentials
+- jenkins 관리 -> Manage credentials -> jenkins -> Global credentials 생성
+- git과 연결하기 위해 git에서 accesstoken 생성 (profile -> settings -> developer settings -> accesstoken 생성 repo 체크)
+- 만들어진 accesstoken으로 jenkins Global credentials 생성(usename:git아이디,password:accesstoken)
+- AWS에서 iam 사용자 추가 (awsAccessKey,awsSecretKey) 
+- iam 사용자 awsAccessKey,awsSecretKey 로 Global credentials 생성 -> jenkins가 내 AWS 리소스에 접근이 가능한 상태가 된다. 
+
+
