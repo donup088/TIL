@@ -37,14 +37,18 @@
 - jenkins github 플러그인 설치
 
 ### jenkins github 연동
-
 - jenkins 에 아이템 설정에 들어가서 git 아이디와 비밀번호 추가
 - github에서 webhooks 추가
-    - http://jenkins주소/github-webwook/
+    - http://jenkins주소/github-webhook/
 - git push를 하면 jenkins에서 빌드가 자동으로 된다.
 
+- 파이프라인 사용
+    - github에서 webhooks 추가
+        - http://jenkins주소/github-webhook/
+    - github Personal token 생성하고 Secret 값 얻기
+    - jenkins 관리 -> 시스템설정 -> git server add -> Secret text 생성 (위에서 만든 토큰사용)
+    - github repository webhook에서 Secret 설정 (token값)
 
-## jenkins
 
 ### jenkins 설치,실행
 1. sudo wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins.io/redhat/jenkins.repo
@@ -53,6 +57,10 @@
 4. alternatives --config java 자바 버전 선택
 5. service jenkins start
 - sudo cat /var/lib/jenkins/secrets/initialAdminPassword 처음 어드민 비밀번호를 알 수 있다.
+6. jenkins 포트변경
+    ```
+    sudo vim /etc/sysconfig/jenkins 
+    ```
 
 ### jenkins credentials
 - jenkins 관리 -> Manage credentials -> jenkins -> Global credentials 생성
@@ -60,5 +68,20 @@
 - 만들어진 accesstoken으로 jenkins Global credentials 생성(usename:git아이디,password:accesstoken)
 - AWS에서 iam 사용자 추가 (awsAccessKey,awsSecretKey) 
 - iam 사용자 awsAccessKey,awsSecretKey 로 Global credentials 생성 -> jenkins가 내 AWS 리소스에 접근이 가능한 상태가 된다. 
+
+### jenkins docker permission 에러
+- sudo usermod -a -G docker jenkins 한 뒤 jenkins 재시작
+
+
+### Spring boot-jenkins-docker 전체적인 흐름
+1. jenkins git credential 설정
+1. git과 jenkins 연동하기 webhook 사용
+2. Jenkinsfile 작성 (pipeline)
+    - git clone 
+    - 운영DB 설정 옮겨주기(application.yml)
+    - 빌드
+    - 도커이미지생성
+    - 도커 run
+
 
 
