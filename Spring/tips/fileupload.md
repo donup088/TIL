@@ -139,5 +139,6 @@ ResultActions results = mockMvc.perform(
             .param("content", "테스트 리뷰 내용")
             .param("score", "5")
              .contentType(MediaType.MULTIPART_FORM_DATA)
-             .characterEncoding("UTF-8"));
-    ```
+             .characterEncoding("UTF-8")
+);
+```
