@@ -21,3 +21,13 @@
     fileRepository.deleteAllByIds(fileIdList);
     routeReviewRepository.deleteById(id);
     ```
+
+
+### 일대다에 일대다 이렇게 연결되어 있는 경우 fetch join말고 default_batch_fetch_size 를 설정하자.
+- 연관되어 있는 엔티티를 조회할 때 한번에 100개씩 in쿼리를 사용하여 가져와 쿼리를 줄일 수 있다.
+    ```
+    spring:
+        jpa:
+            hibernate:
+                default_batch_fetch_size: 100
+    ```
