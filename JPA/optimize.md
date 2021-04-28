@@ -22,9 +22,18 @@
     routeReviewRepository.deleteById(id);
     ```
 
+### ToOne 관계는 모두 fetch join 사용
+- ToOne 관계에서는 fetch join을 사용하고 페이징처리까지 가능하다.
+
+
+### 일대다 컬렉션 fetch join
+- 일대다인 경우가 한가지라면 distinct 를 사용해서 fetch join을 사용할 수 있다. 하지만 DB입장에서는 중복된 데이터가 그대로 적용되어 있으므로 페이징처리는 사용하면 안된다.
+
 
 ### 일대다에 일대다 이렇게 연결되어 있는 경우 fetch join말고 default_batch_fetch_size 를 설정하자.
+- 컬렉션 fetch join을 여러번 사용하는 경우 데이터가 부정합하게 조회될 수 있기 때문에 여러번 사용하는 경우는 사용하지 않는 것이 좋다.
 - 연관되어 있는 엔티티를 조회할 때 한번에 100개씩 in쿼리를 사용하여 가져와 쿼리를 줄일 수 있다.
+- ToOne 관계까지는 fetch join을 사용하고 ToMany 관계 이후로 부터는 lazy 로딩으로 조회한다.
     ```
     spring:
         jpa:
