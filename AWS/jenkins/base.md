@@ -30,9 +30,11 @@
 - jenkins에 public over ssh 설치
 - jenkins에 설정을 들어가서 애플리케이션 설정
     - key path 설정
+        - key path 설정이 안될 시 private key를 스크립트로 넣어도된다. --begin-- --end-- 이부분까지 다 넣어야한다.
     - Name : aws 애플리케이션 이름
     - Hostname : 애플리케이션 private 주소
     - username : ec2-user
+- jenkins 서버를 하나 두고 app server를 따로 둬서 jenkins에서 빌드하고 배포는 app server로 할 수 있다.(위 과정에서 private key를 등록하고 host name을 입력한 server로 배포 가능)
 
 - jenkins github 플러그인 설치
 
@@ -48,6 +50,7 @@
     - github Personal token 생성하고 Secret 값 얻기
     - jenkins 관리 -> 시스템설정 -> git server add -> Secret text 생성 (위에서 만든 토큰사용)
     - github repository webhook에서 Secret 설정 (token값)
+    - 스크립트 설정을 하면 소드코드에 있는 Jenkinsfile 폴더를 스크립트로 사용가능하다.
 
 
 ### jenkins 설치,실행
