@@ -142,3 +142,6 @@ ResultActions results = mockMvc.perform(
              .characterEncoding("UTF-8")
 );
 ```
+
+### 파일 수정 기능 구현시 주의할 점
+- 프론트에서는 File 엔티티를 MultipartFile 형태로 다시 바꿀 수 없다. 따라서 수정할 때 request data로 File을 받아올 수 없기 때문에 파일이 바뀌었는 지 boolean 값을 받아와서 기능을 구현하는 방식으로 할 수 있다.
