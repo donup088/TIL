@@ -16,6 +16,7 @@
 - 카카오톡 로그인 버튼을 누르면 window.location.href = 'http://localhost:8080/oauth2/authorization/kakao'로 location을 이동시킨다.
 
 ### Spring boot
+- implementation 'org.springframework.security:spring-security-oauth2-client' 의존성 추가
 - CustomOAuth2Provider 생성
     ```
     public enum CustomOAuth2Provider {
@@ -127,9 +128,64 @@
     }
     ```
 - security config에 OAuth2SuccessHandler 등록
-    ```
     ...
      .and()
                 .oauth2Login()
                 .successHandler(oAuth2SuccessHandler);
     ```
+### refresh 토큰 처리하기
+- refresh 토큰 관리
+    - 백엔드에서 유저가 로그인할 때 refresh token을 만들어주고 DB에 저장한다.
+    - refresh token이 이미 DB에 존재한다면 update 해준다.
+- 전체적인 흐름
+1. 만료된 access_token을 가지고 api 요청을 보내면 401 error가 난다.
+2. 401 error가 나면 vue interceptor에서 에러를 받아서 로그인한 유저의 userId와 함께 access_token 재발급 요청을 보낸다.
+3. 받은 userId로 백엔드에서 user를 찾고 user에 해당하는 refreshToken의 만료기간을 확인하고 지나지 않았으면 새로운 access_token을 발급한다.
+4. refreshToken이 만료되었다면 에러를 던지고 front에서 로그인 페이지로 리다이렉트한다.
+5. 새로운 access_token으로 api를 다시 요청한다.
+- vue interceptor 부분
+    ```
+    instance.interceptors.response.use(
+            response => {
+                return response;
+            },
+            async error => {
+                const {
+                    config,
+                    response: { status },
+                } = error;
+                if (status === 401) {
+                    const userRefreshReq = {
+                        userId: store.getters['user/getUserId'],
+                    };
+                    try {
+                        const { data } = await refreshToken(userRefreshReq);
+                        localStorage.setItem('accessToken', data.accessToken);
+                        error.response.config.headers.Authorization =
+                            'Bearer ' + data.accessToken;
+                    } catch (error) {
+                        router.push('/login');
+                    }
+                    return axios(config);
+                }
+
+                return Promise.reject(error);
+            },
+        );
+    ```
+- spring userService 부분
+    ```
+    public UserResponse.Login refreshToken(UserRequest.RefreshToken request) {
+        User user = userRepository.findById(request.getUserId()).orElseThrow(UserNotFoundException::new);
+        RefreshToken refreshToken = refreshTokenRepository.findByUserId(request.getUserId()).orElseThrow(RefreshTokenNotFoundException::new);
+        if (!refreshToken.verifyExpiration()) {
+            throw new RefreshTokenExpiredException();
+        }
+        Token token = tokenProvider.generateRefreshToken();
+        refreshToken.update(token.getToken(), token.getExpiredAt());
+
+        return UserResponse.Login.build(user.getId(), user.getName(), tokenProvider.generateAccessToken(user));
+    }
+    ```
+    
+
