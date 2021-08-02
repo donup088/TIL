@@ -236,3 +236,215 @@ nohup java -jar \
 
         sudo service nginx restart
         ```
+
+### 무중단 배포 Shell Script 사용
+- spring boot profileController 생성
+    ```
+    @RestController
+    @RequiredArgsConstructor
+    @RequestMapping(path = "/api")
+    public class ProfileController {
+        private final Environment environment;
+
+        @GetMapping("/profile")
+        public String profile() {
+            List<String> profiles = Arrays.asList(environment.getActiveProfiles());
+            List<String> realProfiles = Arrays.asList("deploy1", "deploy2");
+            String defaultProfile = profiles.isEmpty() ? "default" : profiles.get(0);
+
+            return profiles.stream()
+                    .filter(realProfiles::contains)
+                    .findAny()
+                    .orElse(defaultProfile);
+        }
+    }
+    ```
+- appspec.yml 파일 수정
+    ```
+    version: 0.0
+    os: linux
+    files:
+        - source: /
+            destination: /home/ec2-user/app/step3/zip/
+            overwrite: yes
+
+    permissions:
+        - object: /
+            pattern: "**"
+            owner: ec2-user
+            group: ec2-user
+
+    hooks:
+        AfterInstall:
+            - location: stop.sh # 엔진엑스와 연결되어 있지 않은 스프링 부트를 종료합니다.
+            timeout: 60
+            runas: ec2-user
+        ApplicationStart:
+            - location: start.sh # 엔진엑스와 연결되어 있지 않은 Port로 새 버전의 스프링 부트를 시작합니다.
+            timeout: 60
+            runas: ec2-user
+        ValidateService:
+            - location: health.sh # 새 스프링 부트가 정상적으로 실행됐는지 확인 합니다.
+            timeout: 60
+            runas: ec2-user
+    ```
+-  script 파일 작성
+    - profile.sh
+        ```
+        #!/usr/bin/env bash
+
+        # bash는 return value가 안되니 *제일 마지막줄에 echo로 해서 결과 출력*후, 클라이언트에서 값을 사용한다
+
+        # 쉬고 있는 profile 찾기: deploy1이 사용중이면 deploy2가 쉬고 있고, 반대면 deploy1이 쉬고 있음
+        function find_idle_profile()
+        {
+            RESPONSE_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/api/profile)
+
+            if [ ${RESPONSE_CODE} -ge 400 ] # 400 보다 크면 (즉, 40x/50x 에러 모두 포함)
+            then
+                CURRENT_PROFILE=deploy2
+            else
+                CURRENT_PROFILE=$(curl -s http://localhost/api/profile)
+            fi
+
+            if [ ${CURRENT_PROFILE} == deploy1 ]
+            then
+            IDLE_PROFILE=deploy2
+            else
+            IDLE_PROFILE=deploy1
+            fi
+
+            echo "${IDLE_PROFILE}"
+        }
+
+        # 쉬고 있는 profile의 port 찾기
+        function find_idle_port()
+        {
+            IDLE_PROFILE=$(find_idle_profile)
+
+            if [ ${IDLE_PROFILE} == deploy1 ]
+            then
+            echo "8081"
+            else
+            echo "8082"
+            fi
+        }
+        ```
+    - stop.sh
+        ```
+        #!/usr/bin/env bash
+
+        ABSPATH=$(readlink -f $0)
+        ABSDIR=$(dirname $ABSPATH)  
+        source ${ABSDIR}/profile.sh
+
+        IDLE_PORT=$(find_idle_port)
+
+        echo "> $IDLE_PORT 에서 구동중인 애플리케이션 pid 확인"
+        IDLE_PID=$(lsof -ti tcp:${IDLE_PORT})
+
+        if [ -z ${IDLE_PID} ]
+        then
+        echo "> 현재 구동중인 애플리케이션이 없으므로 종료하지 않습니다."
+        else
+        echo "> kill -15 $IDLE_PID"
+        kill -15 ${IDLE_PID}
+        sleep 5
+        fi
+        ```
+    - switch.sh
+        ```
+        #!/bin/bash
+
+        ABSPATH=$(readlink -f -- "$0")
+        ABSDIR=$(dirname $ABSPATH)
+        source ${ABSDIR}/profile.sh
+
+        function switch_proxy() {
+            IDLE_PORT=$(find_idle_port)
+
+            echo "> 전환할 Port: $IDLE_PORT"
+            echo "> Port 전환"
+            echo "set \$service_url http://127.0.0.1:${IDLE_PORT};" | sudo tee /etc/nginx/conf.d/service-url.inc
+
+            echo "> 엔진엑스 Reload"
+            sudo service nginx reload
+        }
+        ```
+    - start.sh
+        ```
+        #!/usr/bin/env bash
+
+        ABSPATH=$(readlink -f $0)
+        ABSDIR=$(dirname $ABSPATH)
+        source ${ABSDIR}/profile.sh
+
+        REPOSITORY=/home/ec2-user/app/step3
+
+        echo "> Build 파일 복사"
+        echo "> cp $REPOSITORY/zip/*.jar $REPOSITORY/"
+
+        cp $REPOSITORY/zip/*.jar $REPOSITORY/
+
+        echo "> 새 어플리케이션 배포"
+        JAR_NAME=$(ls -tr $REPOSITORY/*.jar | tail -n 1)
+
+        echo "> JAR Name: $JAR_NAME"
+
+        echo "> $JAR_NAME 에 실행권한 추가"
+
+        chmod +x $JAR_NAME
+
+        echo "> $JAR_NAME 실행"
+
+        IDLE_PROFILE=$(find_idle_profile)
+
+        echo "> $JAR_NAME 를 profile=$IDLE_PROFILE 로 실행합니다."
+        nohup java -jar \
+            -Dspring.config.location=classpath:/application.yml,/home/ec2-user/app/application-real-db.yml \
+            -Dspring.profiles.active=prod,$IDLE_PROFILE \
+            $JAR_NAME > $REPOSITORY/nohup.out 2>&1 &
+        ```
+    - health.sh
+        ```
+        ABSPATH=$(readlink -f $0)
+        ABSDIR=$(dirname $ABSPATH)
+        source ${ABSDIR}/profile.sh
+        source ${ABSDIR}/switch.sh
+
+        IDLE_PORT=$(find_idle_port)
+
+        echo "> Health Check Start!"
+        echo "> IDLE_PORT: $IDLE_PORT"
+        echo "> curl -s http://localhost:$IDLE_PORT/api/profile "
+        sleep 10
+
+        for RETRY_COUNT in {1..10}
+        do
+        RESPONSE=$(curl -s http://localhost:${IDLE_PORT}/api/profile)
+        UP_COUNT=$(echo ${RESPONSE} | grep 'deploy' | wc -l)
+
+        if [ ${UP_COUNT} -ge 1 ]
+        then # $up_count >= 1 ("deploy" 문자열이 있는지 검증)
+            echo "> Health check 성공"
+            switch_proxy
+            break
+        else
+            echo "> Health check의 응답을 알 수 없거나 혹은 실행 상태가 아닙니다."
+            echo "> Health check: ${RESPONSE}"
+        fi
+
+        if [ ${RETRY_COUNT} -eq 10 ]
+        then
+            echo "> Health check 실패. "
+            echo "> 엔진엑스에 연결하지 않고 배포를 종료합니다."
+            exit 1
+        fi
+
+        echo "> Health check 연결 실패. 재시도..."
+        sleep 10
+        done
+        ```
+- nginx 설정
+    - /etc/nginx/conf.d/service-url.inc 파일에 service_url 설정
+    - nginx 설정에서 proxy_pass 등 리버스 프록시 설정
