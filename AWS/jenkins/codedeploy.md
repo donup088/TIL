@@ -1,3 +1,25 @@
+## ec2 프리티어 사용시 jenkins 서버 swap 메모리 사용
+- t2.micro를 사용하면 jenkins 서버 메모리 부족으로 서버가 멈추는 현상이 종종 발생한다.
+- swap 메모리를 사용하여 이를 해결한다.
+    ```
+    sudo dd if=/dev/zero of=/swapfile bs=128M count=16
+
+    sudo chmod 600 /swapfile
+
+    sudo mkswap /swapfile
+
+    sudo swapon /swapfile
+
+    sudo swapon -s
+
+    sudo vi /etc/fstab 마지막줄에 /swapfile swap swap defaults 0 0 추가
+    ```
+- 메모리 확인
+    ```
+    free -h
+    ```
+
+
 ## spring boot 서버 jenkins, CodeDeploy 사용으로 배포 자동화 시키기
 
 ### Jenkins 서버 java, git, jenkins 설치
@@ -102,3 +124,56 @@ hooks:
 - add Webhook
     - url http://jenkins주소/github-webhook/
     - content type application/json
+
+## react 로 구성된 frontend 배포 자동화 시키기
+
+### jenkins 설정
+- NodeJs 플러그인 설치 후 global configure 에서 nodejs 버전 선택
+- git 연결은 위와 같은 방법으로한다.
+- 빌드 환경 Provide Node & npm bin/ folder to PATH 선택
+- execute shell 작성
+    ```
+    cd frontend
+    npm install
+    npm run build
+    ```
+- s3 버킷생성, codedeploy 배포그룹 생성
+- jenkins에서 codedeploy 설정
+    - include files에서 build/**/**/*,build/*, appspec.yml, scripts/* 추가
+        - /build/static/css , /build/static/js 파일도 포함하기 위해 build/**/**/* 을 추가하였다.
+
+### nginx 설정
+```
+server {
+    listen          80;
+    server_name     #도메인 or IP 주소;
+
+    root /var/www/html/dist;  #Vue build 결과물이 있는 경로 (서버안쪽으로 경로를 잡아줘야한다.)
+    index   index.html      index.htm;  
+
+    # ELB 사용시 http 요청을 https 로 redirect 해주기 위함
+    if ($http_x_forwarded_proto = 'http'){     
+        return 301 https://도메인 or IP 주소$request_uri;
+     }
+
+    # 봇 차단
+    if ($http_user_agent = "") {
+        return 403;
+    }
+
+    # 봇 차단
+    if ($http_user_agent ~* (MJ12bot|AhrefsBot|SemrushBot|ltx71) ) {
+        return 403;
+    }
+
+    # vue router history 모드 사용시 해줘야함
+    location / {
+            try_files $uri $uri/ /index.html;
+    }
+
+    # api 요청 라우팅
+    location /api {
+            proxy_pass http://IP주소;
+    }
+}
+```
