@@ -30,7 +30,7 @@ sudo amazon-linux-extras install 33
 ```
 - git 설치
 ```
-sudo yum git install -y
+sudo yum install git -y
 ```
 - jenkins 설치
 ```
