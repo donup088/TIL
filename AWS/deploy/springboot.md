@@ -19,3 +19,4 @@
     - codedeploy 로 elb 배포시 속도 올리기
         - BlockTraffic 을 줄이기 위해 Deregistration delay 값을 낮추면 된다. 기본값은 300초이다.
         - allowTraffic 구간을 줄이기 위해 Healthy threshold 를 5 -> 2 로 변경하고 interval도 30 -> 10 으로 설정한다. (대상 그룹의 health check 할 때 오래 걸리기 때문)
+- elb를 사용하여 frontend, backend 모두 무중단배포를 하려고 했지만 인스턴스를 더 만들어야 가능하다는 사실을 알게되었다. 개발서버를 구축하는 상황이라 인스턴스를 최소한으로 사용해도 될 것 같다는 생각이 들어서 elb를 없애고 https 를 let's encrypt로 사용하고 codedeploy에서 로드밸런싱을 없애주었다.
