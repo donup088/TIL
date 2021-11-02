@@ -20,3 +20,10 @@
         - BlockTraffic 을 줄이기 위해 Deregistration delay 값을 낮추면 된다. 기본값은 300초이다.
         - allowTraffic 구간을 줄이기 위해 Healthy threshold 를 5 -> 2 로 변경하고 interval도 30 -> 10 으로 설정한다. (대상 그룹의 health check 할 때 오래 걸리기 때문)
 - elb를 사용하여 frontend, backend 모두 무중단배포를 하려고 했지만 인스턴스를 더 만들어야 가능하다는 사실을 알게되었다. 개발서버를 구축하는 상황이라 인스턴스를 최소한으로 사용해도 될 것 같다는 생각이 들어서 elb를 없애고 https 를 let's encrypt로 사용하고 codedeploy에서 로드밸런싱을 없애주었다.
+
+### spring boot s3 업로드 jenkins 배포시 IOException 발생
+- 처음에 해당 에러를 customexception으로 처리하고 있었기 때문에 무엇이 원인인지 알아낼 방법이 없었다.
+- CustomException을 만들어 사용하더라도 에러 로그는 사용해야 원인을 알 수 있다.
+- 로그를 통해 확인해보니 파일 생성에 있어서 permission 이 원인이었다.
+- jenkins로 배포하지 않고 수동배포할 때는 ec2에 파일 생성권한이 있어서 에러가 안났지만 jenkins로 배포하니 배포하는 유저가 jenkins 이기 때문에 ec2에 파일 생성권한이 없었다.
+- 기존에는 파일 생성 경로를 파일 이름으로 했었지만 앞에 "/tmp/"를 추가해주어서 파일을 생성할 수 있도록하여 해결하였다.
