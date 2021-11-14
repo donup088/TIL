@@ -13,6 +13,10 @@
 - .env 파일 서버에 만들고 cp -r 명령어로 하려고 했지만 permission 에러가 계속 났다.
 - sudo 를 명령어에 추가하는 방법을 사용해보았지만 안됨.
 - 권한문제라고 생각하여 jenkins 폴더를 찾아서 jenkins 유저 권한으로 폴더를 만들어 주었다.
+    ```
+    //abc의 하위 폴더와 파일들에 소유자와 그룹을 설정
+    sudo chown -R 소유자:그룹이름 abc
+    ```
 - jenkins node script
     ```
     cd frontend
