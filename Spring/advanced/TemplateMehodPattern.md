@@ -96,3 +96,23 @@ public class ContextV1 {
 ```
 - context 내부에 strategy 필드를 가지고 있다. 필드에 변하는 부분만 Strategy 구현체를 주입하면 된다. Context는 Strategy 인터페이스에만 의존한다. Strategy의 구현체를 변경하거나 새로 만들어도 Context 코드에는 영향을 주지 않는다.
 - 스프링에서 의존관계 주입에서 사용하는 방식이 전략 패턴이다.
+- 위와 같은 방법으로 하게 되면 필드주입을 받기 때문에 한번 주입받고나면 변경이 어렵다는 단점이 있다. 이를 해결하는 방법으로는 파라미터로 직접 주입받는 방법이 있다.
+```
+@Slf4j
+public class ContextV2 {
+    public void execute(Strategy strategy) {
+        long startTime = System.currentTimeMillis();
+        strategy.call();
+        long endTime = System.currentTimeMillis();
+        long resultTime = endTime - startTime;
+        log.info("resultTime={}", resultTime);
+    }
+}
+```
+- 이렇게 방법을 바꾸면 실행할 때마다 전략을 유연하게 변경할 수 있다.
+
+### 템플릿 콜백 패턴
+- 변하지 않는 템플릿이 있고 변하는 부분은 파라미터로 넘겨온 Strategy 의 코드를 실행해서 처리한다. 이 때 다른 코드의 인수로 넘겨주는 실행가능한 코드를 콜백이라고한다.
+- call(코드를 호출) + back(호출한 코드를 뒤에서 실행) 
+- java에서의 콜백
+    - 자바 언어에서 실행 가능한 코드를 넘기려면 객체가 필요하다. 자바8부터는 람다를 사용할 수 있다.(자바 8이전은 주로 익명내부클래스사용)
