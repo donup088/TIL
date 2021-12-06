@@ -82,3 +82,90 @@ void cacheProxyTest(){
     client.execute();
 }
 ```
+
+### 데코레이터 패턴
+- 프록시를 활용하여 부가 기능을 추가하는 것을 데코레이터 패턴이라고 한다.
+- 요청 값이나 응답 값을 중간에 변형, 실행 시간을 측정해서 추가 로그를 남김
+```
+public interface Component {
+    String operation();
+}
+```
+```
+@Slf4j
+public class RealComponent implements Component {
+
+    @Override
+    public String operation() {
+        log.info("RealComponent 실행");
+        return "data";
+    }
+}
+```
+```
+@Slf4j
+public class DecoratorPatternClient {
+    private Component component;
+
+    public DecoratorPatternClient(Component component) {
+        this.component = component;
+    }
+
+    public void execute() {
+        String result = component.operation();
+        log.info("result={}", result);
+    }
+}
+```
+```
+@Slf4j
+public class MessageDecorator implements Component {
+    private Component component;
+
+    public MessageDecorator(Component component) {
+        this.component = component;
+    }
+
+    @Override
+    public String operation() {
+        log.info("MessageDecorator 실행");
+        String result = component.operation();
+        String decoResult = "*****" + result + "*****";
+        log.info("MessageDecorator 꾸미기 적용 전={}, 적용 후={}", result, decoResult);
+        return decoResult;
+    }
+}
+
+```
+```
+@Slf4j
+public class TimeDecorator implements Component {
+    private Component component;
+
+    public TimeDecorator(Component component) {
+        this.component = component;
+    }
+
+    @Override
+    public String operation() {
+        log.info("TimeDecorator 실행");
+        long startTime = System.currentTimeMillis();
+        String result = component.operation();
+        long endTime = System.currentTimeMillis();
+        long resultTime = endTime - startTime;
+        log.info("TimeDecorator 종료 resultTime={}ms", resultTime);
+        return result;
+    }
+}
+```
+```
+ @Test
+    void decorator2() {
+        Component realComponent = new RealComponent();
+        Component messageDecorator = new MessageDecorator(realComponent);
+        Component timeDecorator = new TimeDecorator(messageDecorator);
+        DecoratorPatternClient client = new DecoratorPatternClient(timeDecorator);
+        client.execute();
+    }
+```
+- 이처럼 데코레이터 패턴은 체인걸듯이 연결되어 추가기능을 넣을 수 있다.
