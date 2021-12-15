@@ -105,3 +105,116 @@ public class AspectV4Order {
 - @After : 조인 포인트가 정상 또는 예외 관계없이 실행
 
 - @Around를 사용하면 모든 것을 할 수 있지만 다른 어드바이스 종류를 사용하면 다른 개발자가 이 코드를 보고 고민해야 하는 범위가 줄어들게 되고 코드의 의도도 파악하기 쉽게 할 수 있다.
+
+### Pointcut execution 문법
+```
+ @Test
+void exactMatch() {
+    pointcut.setExpression("execution(public String hello.aop.member.MemberServiceImpl.hello(String))");
+    Assertions.assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isTrue();
+}
+```
+- 매칭 조건
+    - 접근제어자 : public
+    - 반환 타입 : String
+    - 선언 타입 : hello.aop.member.MemberServiceImpl
+    - 매서드 이름 : hello
+    - 파라미터 : (String)
+    - 예외 : 생략
+
+- 패키지에서 '*', '**' 의 차이  
+    - '*' : 정확하게 해당 위치의 패키지
+    - '**' : 해당 위치의 패키지와 그 하위 패키지도 포함
+```
+@Test
+void packageExactFalse(){
+    pointcut.setExpression("execution(* hello.aop.*.*(..))");
+    Assertions.assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isFalse();
+}
+
+@Test
+void packageMatchSubPackage1(){
+    pointcut.setExpression("execution(* hello.aop.member..*.*(..))");
+    Assertions.assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isTrue();
+}
+```
+
+- 타입 매칭 
+    - 부모타입을 선언해도 자식 타입을 매칭된다.
+    ```
+    @Test
+    void typeMatchSuperType(){
+        pointcut.setExpression("execution(* hello.aop.member.MemberService.*(..))");
+        Assertions.assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isTrue();
+    }
+    ```
+    - 부모 타입에 선언된 메서드만 매칭이 된다. 
+    - 부모 타입을 표현식에 선언한 경우 부모 타입에서 선언한 메서드가 자식 타입에 있어야 매칭에 성공한다.
+
+### Pointcut within , args 문법
+- within
+    - execution 에서 타입부분만 쓰는 것이다.
+    - 표현식에 부모 타입을 지정하면 안되고 타입이 정확하게 맞아야한다.
+- args
+    - 파라미터 타입을 보고 적용한다.
+    - execution과의 차이점
+        - execution은 정확하게 파라미터 타입이 일치해야한다.
+        - args는 부모타입으로도 매칭시킨다. ex) String - Object 매칭됨.
+
+
+### @taget, @within
+- @taget : 인스턴스의 모든 메서드를 조인 포인트로 사용한다.
+- @within : 해당 타입 내에 있는 매서드만 조인 포인트로 적용한다.
+- @taget은 부모 클래스의 매서드까지 어드바이스를 다 적용하고 @within은 자신의 클래스에 정의된 매서드에만 어드바이스를 적용한다.
+
+- args, @args, @target과 같은 포인트컷 지시자들은 execution으로 먼저 적용대상을 줄이고 사용해야한다. 해당 지시자들은 프록시가 있어야 실행 시점에 판단을 할 수 있기 때문에 프록시가 없으면 판단일 불가능하다.
+
+
+### 매개변수 전달
+- 매개변수를 전달받는 방법
+    - 주의
+        - this : 프록시 객체를 전달받는다
+        - target : 실제 대상 객체를 전달받는다.
+    - 애노테이션을 전달받아서 annotaion.value()로 해당 애노테이션의 값을 출력할 수도 있다.
+    ```
+    @Slf4j
+    @Aspect
+    static class ParameterAspect {
+        @Pointcut("execution(* hello.aop.member..*.*(..))")
+        private void allMember() {
+        }
+
+        @Around("allMember()")
+        public Object logArgs1(ProceedingJoinPoint joinPoint) throws Throwable {
+            Object arg1 = joinPoint.getArgs()[0];
+            log.info("[logArgs1]{}, args={}", joinPoint.getSignature(), arg1);
+            return joinPoint.proceed();
+        }
+
+        @Around("allMember() && args(arg,..)")
+        public Object logArgs2(ProceedingJoinPoint joinPoint, Object arg) throws Throwable {
+            log.info("[logArg2]{}, args={}", joinPoint.getSignature(), arg);
+            return joinPoint.proceed();
+        }
+
+        @Before("allMember() && args(arg,..)")
+        public void logArgs3(String arg) {
+            log.info("[logArgs3], args={}", arg);
+        }
+
+        @Before("allMember() && this(obj)")
+        public void thisArgs(JoinPoint joinPoint, MemberService obj) {
+            log.info("[this]{}, obj={}", joinPoint.getSignature(), obj.getClass());
+        }
+
+        @Before("allMember() && target(obj)")
+        public void targetArgs(JoinPoint joinPoint, MemberService obj) {
+            log.info("[target]{}, obj={}", joinPoint.getSignature(), obj.getClass());
+        }
+
+        @Before("allMember() && @annotation(annotation)")
+        public void targetArgs(JoinPoint joinPoint, MethodAop annotation) {
+            log.info("[target]{}, annotation={}", joinPoint.getSignature(), annotation.value());
+        }
+    }
+    ```
