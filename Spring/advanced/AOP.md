@@ -218,3 +218,120 @@ void packageMatchSubPackage1(){
         }
     }
     ```
+
+## 주의할 점
+
+### 프록시와 내부 호출 문제
+```
+@Slf4j
+@Aspect
+public class CallLogAspect {
+    @Before("execution(* hello.aop.internalcall..*.*(..))")
+    public void doLog(JoinPoint joinPoint){
+        log.info("aop={}",joinPoint.getSignature());
+    }
+}
+```
+```
+@Slf4j
+@Component
+public class CallServiceV0 {
+    public void external(){
+        log.info("call external");
+        internal();
+    }
+
+    public void internal(){
+        log.info("call internal");
+    }
+}
+```
+```
+@Test
+void external() {
+    callServiceV0.external();
+}
+```
+- 위 test를 돌려보면 internal 메서드의 프록시가 호출되지 않는다.
+    - CallServiceVO의 external 메서드에서 internal 메서드를 호출할 때 앞에 this가 붙어있으므로 실제 인스턴스의 internal을 호출한다.
+
+- 대안1 자기 자신 주입
+    ```
+    @Slf4j
+    @Component
+    public class CallServiceV0 {
+
+        private CallServiceV0 callServiceV0;
+
+        @Autowired
+        public void setCallServiceV0(CallServiceV0 callServiceV0) {
+            this.callServiceV0 = callServiceV0;
+        }
+
+        public void external() {
+            log.info("call external");
+            callServiceV0.internal();
+        }
+
+        public void internal() {
+            log.info("call internal");
+        }
+    }
+    ```
+    - setter로 의존성주입을 받고 자기 자신을 사용하는 방법이다. spring 2.6.x 버전 대는 순환참조가 기본적으로 안되서 application.properties 파일에  spring.main.allow-circular-references=true 을 추가해주어야한다.
+
+- 대안2 지연조회
+    ```
+    @Slf4j
+    @Component
+    public class CallServiceV2 {
+        
+        private final ObjectProvider<CallServiceV2> callServiceProvider;
+
+        public CallServiceV2(ObjectProvider<CallServiceV2> callServiceProvider) {
+            this.callServiceProvider = callServiceProvider;
+        }
+
+        public void external() {
+            log.info("call external");
+            CallServiceV2 callServiceV2 = callServiceProvider.getObject();
+            callServiceV2.internal();
+        }
+
+        public void internal() {
+            log.info("call internal");
+        }
+    }
+    ```
+    - ObjectProvider를 사용해서 객체를 스프링 컨테이너에서 조회하는 것을 스프링 빈 생성 시점이 아니라 실제 객체를 사용하는 시점으로 지연할 수 있다.
+
+- 대안3 구조변경
+    ```
+    @Slf4j
+    @Component
+    public class InternalService {
+        public void internal() {
+            log.info("call internal");
+        }
+    }
+    ```
+    ```
+    @Slf4j
+    @Component
+    @RequiredArgsConstructor
+    public class CallServiceV3 {
+
+        private final InternalService internalService;
+
+        public void external() {
+            log.info("call external");
+            internalService.internal();
+        }
+    }
+    ```
+    - 외부 클래스로 빼서 의존성을 주입받아 사용한다.
+
+### 타입 캐스팅 문제
+- JDK 동적 프록시는 대상 객체로 캐스팅 할 수 없다.
+- CGLIB 프록시는 대상 객체로 캐스팅 할 수 있다.
+- 의존관계 주입에서 발생한다.
