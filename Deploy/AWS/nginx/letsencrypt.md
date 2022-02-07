@@ -83,5 +83,5 @@
     ```
 - letsencrypt는 3개월마다 유효기간이 만료된다. 알람메일이 오면 갱신하도록 하자.
     ```
-    sudo certbot
+    sudo certbot renew
     ```
