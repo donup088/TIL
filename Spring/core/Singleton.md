@@ -56,4 +56,4 @@ public class StatefulService {
 - @Configuration의 사용
     - 바이트코드를 조작하는 CGLIB의 기술을 사용해서 싱글톤이 보장되도록 해준다.
     - @Bean이 붙은 매소드마다 이미 스프링 빈이 존재하면 존재하는 빈을 반환하고 없다면 스프링 빈으로 등록하고 반환한다.
-- @Configuration의 사용하지 않는다면 객체를 스프링  컨테이너가 관리하지 않는다.
+- @Configuration의 사용하지 않는다면 객체를 스프링 컨테이너가 관리하지 않는다.
