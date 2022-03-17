@@ -28,3 +28,11 @@ N+1 문제는 하위엔티티들이 존재하는 경우 한 쿼리에서 모두 
     3. @BatchSize 사용
 
 ## JPA 트랜잭션의 전파 및 격리
+- Propagation.REQUIRED (@Transactional(propagation = Propagation.REQUIRED)) -> 기본값
+    - 이미 만들어진 트랜잭션이 존재하면 해당 트랜잭션 관리 범위 안에 함께 들어간다. 이미 만들어진 트랜잭션이 존재하지 않으면 새로운 트랜잭션을 만든다.
+- Propagation.REQUIRES_NEW (@Transactional(propagation = Propagation.REQUIRES_NEW))
+    - 매번 새로운 트랜잭션을 만든다. 이미 만들어진 트랜잭션이 종료되지 않았다면 새로운 트랜잭션은 대기상태가 되어 이전 트랜잭션이 끝나는 것을 기다려야한다.
+- Propagation.MANDATORY 
+    - 이미 만들어진 트랜잭션 범위안으로 들어가야한다. 이미 만들어진 트랜잭션이 없다면 예외가 발생한다.
+- Propagation.NESTED
+    - 기본적인 동작은 Propagation.REQUIRED 와 동일하다. 차이점은 SAVEPOINT를 지정한 시점까지 부분 롤백이 가능하다. 데이터베이스가 SAVEPOINT 기능을 지원해야 사용 가능하다. ex) Oracle
