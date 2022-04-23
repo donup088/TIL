@@ -29,4 +29,3 @@ JDBC를 이용하여 편리하게 사용하는 다양한 기술이 있다.
 
 ### JDBC DriverManager
 JDBC가 제공하는 DriverManager는 라이브러리에 등록된 DB 드라이버들을 관리하고 커넥션을 획득한다.
-
