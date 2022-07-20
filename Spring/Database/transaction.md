@@ -43,6 +43,45 @@
 ### 트랜잭션 전파
 1. REQUIRED 
     - 기본 옵션으로 부모 트랜잭션이 존재한다면 부모 트랜잭션에 합류하고 그렇지 않다면 새로운 트랜잭션을 만든다. 중간에 부모/자식에서 롤백이 발생한다면 부모와자식 트랜잭션 모두 롤백한다.
+    ```
+    @Service
+    @Slf4j
+    @RequiredArgsConstructor
+    public class OuterService {
+        private final InnerService innerService;
+        private final TestObjectRepository repository;
+
+        @Transactional
+        public void txTest() {
+            log.info("currentTransactionName : {}",
+                    TransactionSynchronizationManager.getCurrentTransactionName());
+            try {
+                repository.save(new TestObject("부모"));
+                innerService.logic();
+            } catch (RuntimeException e) {
+                log.info(e.getMessage());
+            }
+        }
+    }
+    ```
+    ```
+    @Service
+    @Slf4j
+    @RequiredArgsConstructor
+    public class InnerService {
+        private final TestObjectRepository testObjectRepository;
+
+        @Transactional
+        public void logic() {
+            log.info("currentTransactionName : {}",
+                    TransactionSynchronizationManager.getCurrentTransactionName());
+            testObjectRepository.save(new TestObject("자식"));
+            throw new RuntimeException();
+        }
+    }
+    ```
+    - 위와 같은 코드에서 OuterService가 InnerService에서 발생하는 RuntimeException을 try catch로 잡아서 처리하기 때문에 부모 트랜잭션이 커밋되는 오해를 하기 쉽다.
+    - 스프링 트랜잭션은 트랜잭션에서 예외가 발생하면 rollback-only를 마킹하고 최종 커미승ㄹ 할 때 마킹이 되어 있어 롤백시켜버린다. 따라서 예외가 발생하면 해당 트랜잭션을 재사용할 수 없다.
 2. REQUIRES_NEW
     - 무조건 새로운 트랜잭션을 만든다.
     - 부모 트랜잭션에 예외가 발생해도 자식 트랜잭션에는 꼭 커밋되어야 하는 상황에서 사용하면 좋다.
