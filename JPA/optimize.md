@@ -53,3 +53,16 @@
     - 모든 지연로딩은 트랜잭션 안에서 처리해야한다. View template에서의 지연로딩도 동작하지 않는다.
 - OSIV 전략의 선택
     - 고객 서비스의 실시간 API 같은 곳에서는 OSIV를 끄고 ADMIN 처럼 커넥션을 많이 사용하지 않는 곳에서는 OSIV를 키고 사용하면 좋다.
+
+### OneToOne 관계에서 지연로딩이 동작하지 않는 경우
+User 엔티티와 Car 엔티티가 서로 일대일인 관계에서 연관관계의 주인은 User인 상황이다.
+이 때 @OneToONe 관계의 FetchType을 LAZY로 하고 User를 조회하는 경우 User만 조회하게 된다.
+하지만 연관관계 주인이 아닌 Car를 조회하는 경우 User까지 함께 조회되는 문제가 발생한다.
+
+mappedBy가 설정되는 경우 Car테이블에는 User에 대한 필드가 존재하지 않고 이 때문에 User에 해당하는 연관관계 reference field에 어떤 값을 넣어줘야하는 지 알 수 없다. 이 때문에 fetchType에 LAZY이더라도 EAGER 전략처럼 동작하게 된다.
+
+- 연관관계의 주인인 경우에는 User 테이블에서 car_id 외래키를 가지고 있기 때문에 Car 엔티티를 조회해보지 않아도 Car 엔티티가 존재하는 지 안하는 지를 알 수 있다.
+
+- OneToOne 관계에서 LAZY 로딩을 사용하려면 해야하는 설정
+1. nullable이 허용되지 않는 @OneToOne 관계
+2. 양방향이 아닌 단방향 관계
