@@ -51,9 +51,50 @@ val c: Long = 2
 - Unit
     - Java의 void와 동일한 역할
 - Nothing
-    - Nothing은 함수가 정상적으로 끝나지 않았다는 사실을 표현하는 역활
+    - Nothing은 함수가 정상적으로 끝나지 않았다는 사실을 표현하는 역할
     - 무조건 예외를 반환하는 함수 등등
 
 ### 비교연산자
 - 코틀린에서는 Java와 다르게 객체를 비교할 때 비교 연산자를 사용하면 자동으로 compareTo를 호출해준다.
 - 주소값이 같은 지 비교하기 위해 ===을 사용하고 java의 equals와 같은 연산을 하려면 == 을 사용하면 된다.
+
+### switch when
+```
+fun getGradeWithSwitch(score: Int): String {
+    return when (score / 10) {
+        9 -> "A"
+        8 -> "B"
+        7 -> "C"
+        else -> "D"
+    }
+}
+```
+```
+fun getGradeWithSwitch(score: Int): String {
+    return when (score) {
+        in 90..99 -> "A"
+        in 80..89 -> "B"
+        in 70..79 -> "C"
+        else -> "D"
+    }
+}
+```
+```
+fun judgeNumber(number: Int) {
+    when (number) {
+        1, 0, -1 -> println("good")
+        else -> println("bad")
+    }
+}
+```
+```
+fun judgeNumber2(number: Int) {
+    when {
+        number == 0 -> println("0입니다.")
+        number % 2 == 0 -> println("짝수입니다.")
+        else -> println("홀수입니다.")
+    }
+}
+
+```
+- 이처럼 when 안의 조건을 다양하게 사용할 수 있다.
