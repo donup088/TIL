@@ -98,3 +98,72 @@ fun judgeNumber2(number: Int) {
 
 ```
 - 이처럼 when 안의 조건을 다양하게 사용할 수 있다.
+
+### 반복문
+```
+val numbers = listOf(1L, 2L, 3L)
+for (number in numbers) {
+    println(number)
+}
+
+for (i in 3 downTo 1) {
+    println(i)
+}
+
+for (i in 1..5 step 2) {
+    println(i)
+}
+```
+- for 문의 사용예시를 보면 in 을 통해 반복하려는 것에 접근할 수 있고 .. 연산을 통해 범위를 나타낼 수 있다. step 을 통해선 인덱스가 커지는 크기를 관리할 수 있다.
+
+### 코틀린에서의 예외처리
+코틀린에서는 Checked Exception과 UnChecked Exception을 구분하지 않고 모두 UnChecked Exception이다. 따라서 체크예외가 발생해서 throws 구분으로 예외를 전파시키지 않도록 할 수 있다.
+
+- try with resources 구문이 사라지고 대신 use를 사용할 수 있다.
+```
+fun readFile(path: String) {
+    BufferedReader(FileReader(path)).use { reader ->
+        println(reader.readLine())
+    }
+}
+```
+
+### 함수를 다루는 방법
+- 함수 선언
+    ```
+    fun max(a: Int, b: Int) = if (a > b) a else b
+    ```
+    - return 대신 = 연산자로 사용할 수 있다.
+- default parameter
+    - 자주 사용되는 파라미터를 디폴트 값으로 설정할 수 있다.
+    ```
+    fun repeat(str: String, num: Int = 3, useNewLine: Boolean = true) {
+        for (i in 1..num) {
+            if (useNewLine) {
+                println(str)
+            } else {
+                println(str)
+            }
+        }
+    }
+    ```
+- named argument
+    ```
+    repeat("hi", useNewLine = false)
+    ```
+    - 매개변수 이름을 통해 직접 지정하여 사용할 수 있다.
+
+- 가변인자 사용
+    ```
+    fun printAll(vararg strings: String) {
+        for (s in strings) {
+            println(s)
+        }
+    }
+    ```
+    - vararg 를 사용하여 가변인자를 사용할 수 있다.
+    - 해당 함수를 호출하는 쪽에서는 배열을 바로 넣는 대신 스프레드 연산자를 붙여줘야한다.
+    ```
+    val arrayOf = arrayOf("a", "b", "c")
+    printAll(*arrayOf)
+    ```
