@@ -115,3 +115,53 @@ class Penguin(species: String) : Animal(species, 2), Swimable, Flyable {
 }
 ```
 - 상위 클래스 설계할 때 생성자 또는 초기화 블록에 사용되는 프로퍼티에는 open을 피해야한다.
+
+### 접근제어 
+- public : 모든 곳에서 접근 가능
+- protected : 선언된 클래스 또는 하위 클래스에서만 접근 가능
+- internal: 같은 모듈에서만 접근 가능
+- private : 선언된 클래스내에서만 접근 가능
+- 생성자에 접근 지시어를 붙일 때는 constructor를 명시적으로 써주어야한다.
+
+### object 키워드를 다루는 방법
+- java의 static 변수와 함수를 만드려면 코틀린에서는 companion object를 사용해야한다.
+```
+class Person private constructor(
+    var name: String,
+    var age: Int
+) {
+    companion object {
+        private const val MIN_AGE = 1
+        fun newBaby(name: String): Person {
+            return Person(name, MIN_AGE)
+        }
+    }
+}
+```
+- 코틀린에서 싱글톤 클래스를 만들 때 object 키워드를 사용한다.
+- 익명클래스를 만들 때 object : 타입을 사용한다.
+
+### 중첩 클래스 다루기
+```
+class House(
+    val address: String,
+    val livingRoom: LivingRoom
+) {
+    class LivingRoom(
+        private val area: Double
+    )
+}
+```
+- 바깥 클래스를 참조하고 싶다면 inner 키워드를 붙여야한다.
+- inner class에서 바깥 클래스를 참조하려면 this@바깥클래스 를 사용해야한다.
+
+### 다양한 클래스 다루기
+- Data class : equeals, hashCode, toString 을 자동으로 만들어준다.
+```
+data class PersonDto(
+    val name: String,
+    val age: Int
+)
+```
+- Enum Class : 자바의 Enum Class와 동일하지만 when과 함께 사용함으로써 큰 장점을 가지게 된다.
+- Enum Class 보다 유연하지만 하위 클래스를 제한하는 Sealed Class 역시 when과 함께 주로 사용된다.
